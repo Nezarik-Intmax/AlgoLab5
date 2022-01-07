@@ -10,6 +10,7 @@ namespace AlgoLab5 {
 	using namespace System::Data;
 	using namespace System::Drawing;
 
+
 	/// <summary>
 	/// Сводка для MyForm
 	/// </summary>
@@ -36,13 +37,16 @@ namespace AlgoLab5 {
 			}
 		}
 	private: System::Windows::Forms::TextBox^ textBox1;
+	private: System::Windows::Forms::Timer^ timer1;
+	private: System::ComponentModel::IContainer^ components;
+
 	protected:
 
 	private:
 		/// <summary>
 		/// Обязательная переменная конструктора.
 		/// </summary>
-		System::ComponentModel::Container ^components;
+
 
 #pragma region Windows Form Designer generated code
 		/// <summary>
@@ -51,7 +55,9 @@ namespace AlgoLab5 {
 		/// </summary>
 		void InitializeComponent(void)
 		{
+			this->components = (gcnew System::ComponentModel::Container());
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
+			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
 			this->SuspendLayout();
 			// 
 			// textBox1
@@ -122,7 +128,7 @@ namespace AlgoLab5 {
 			Node->TabIndex = count;
 			Node->Tag = count;
 			Node->Text = "0";
-			//Node->TextChanged += gcnew System::EventHandler(this, &MyForm::Node_TextChanged);
+			Node->Click += gcnew System::EventHandler(this, &MyForm::CreateEdge);
 			//Node->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 			this->Controls->Add(Node);
 		}
@@ -131,5 +137,51 @@ namespace AlgoLab5 {
 				
 			}
 		}
+
+		Button^ tmpNode = nullptr;
+		public: System::Void CreateEdge(System::Object^ sender, System::EventArgs^ e)/*{
+			if(tmpNode == nullptr){
+				tmpNode = (Button^)sender;
+			}else{
+				Form2^ a = gcnew Form2;
+				a->ShowDialog();
+				tmpNode = nullptr;
+			}
+		}*/;
 };
+	public ref class Form2: public System::Windows::Forms::Form{
+	public:
+		Form2(void){
+			InitializeComponent();
+		}
+		String^ getText(){
+			return textBox1->Text;
+		}
+	private: 
+		System::Windows::Forms::TextBox^ textBox1;
+		System::ComponentModel::IContainer^ components;
+		System::Windows::Forms::Timer^ timer1;
+		void InitializeComponent(void){
+
+		}
+		bool enter = false;
+		System::Void textBox1_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e){
+			if(e->KeyCode == Keys::Enter){
+				enter = true;
+			}
+		}
+		System::Void timer1_Tick(System::Object^ sender, System::EventArgs^ e){
+			if(enter){
+			}
+		}
+	};
+	System::Void MyForm::CreateEdge(System::Object^ sender, System::EventArgs^ e){
+		if(tmpNode == nullptr){
+			tmpNode = (Button^)sender;
+		} else{
+			Form2^ a = gcnew Form2;
+			a->ShowDialog();
+			tmpNode = nullptr;
+		}
+	}
 }
