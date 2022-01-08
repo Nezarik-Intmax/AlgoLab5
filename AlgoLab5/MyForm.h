@@ -38,6 +38,7 @@ namespace AlgoLab5 {
 			}
 		}
 	private: System::Windows::Forms::Label^ label1;
+	private: System::Windows::Forms::Label^ label2;
 	private: System::Windows::Forms::TextBox^ textBox1;
 	private: System::Windows::Forms::TextBox^ textBox2;
 	private: System::Windows::Forms::Button^ button1;
@@ -62,6 +63,7 @@ namespace AlgoLab5 {
 			this->textBox1 = (gcnew System::Windows::Forms::TextBox());
 			this->textBox2 = (gcnew System::Windows::Forms::TextBox());
 			this->label1 = (gcnew System::Windows::Forms::Label());
+			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// textBox1
@@ -99,6 +101,17 @@ namespace AlgoLab5 {
 				static_cast<System::Byte>(204)));
 			this->label1->Text = L"label1";
 			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Location = System::Drawing::Point(971, 21);
+			this->label2->Name = L"label1";
+			this->label2->Size = System::Drawing::Size(35, 13);
+			this->label2->TabIndex = 1;
+			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(204)));
+			this->label2->Text = L"label1";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
@@ -106,6 +119,7 @@ namespace AlgoLab5 {
 			this->AutoSize = true;
 			this->ClientSize = System::Drawing::Size(738, 452);
 			this->Controls->Add(this->label1);
+			this->Controls->Add(this->label2);
 			this->Controls->Add(this->textBox1);
 			this->Controls->Add(this->textBox2);
 			this->Location = System::Drawing::Point(161, 21);
@@ -169,7 +183,39 @@ namespace AlgoLab5 {
 		}
 		private: System::Void textBox1_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e){
 			if(e->KeyCode == Keys::Enter){
-				
+				Algorithm();
+			}
+		}
+		private: System::Void Algorithm(){
+			for(int i = 0; i < N; i++){
+				flags[i] = false;
+				nodes[i] = std::numeric_limits<int>::max();
+				pathS[i] = "";
+			}
+			nodes[0] = 0;
+			int min, minI;
+			for(int i = 0; i < N; i++){
+				min = std::numeric_limits<int>::max(), minI = 0;
+				for(int j = 0; j < count; j++){
+					if((!flags[j]) && (nodes[j] < min)){
+						min = nodes[j];
+						minI = j;
+					}
+				}
+				for(int j = 0; j < count; j++){
+					if(!flags[j]){
+						if((graph[minI][j] != -1) && ((graph[minI][j] + nodes[minI]) < nodes[j])){
+							nodes[j] = graph[minI][j] + nodes[minI];
+							pathS[j] += minI + "->";
+						}
+					}
+				}
+				flags[minI] = true;
+			}
+			this->label2->Text = "";
+			for(int o = 0; o < N; o++){
+				pathS[o] += o;
+				this->label2->Text += "S+P = " + nodes[o] + " \n" + pathS[o] + "\n\n";
 			}
 		}
 		Button^ tmpNode = nullptr;
