@@ -134,6 +134,7 @@ namespace AlgoLab5 {
 		}
 #pragma endregion
 		int** graph;
+		int** graphP;
 		bool** edges;
 		int* nodes;
 		bool* flags;
@@ -144,6 +145,7 @@ namespace AlgoLab5 {
 		array<Label^, 2>^ labels = gcnew array<Label^, 2>(60, 60);
 		private: System::Void MyForm_Load(System::Object^ sender, System::EventArgs^ e){
 			graph = new int*[N];
+			graphP = new int*[N];
 			edges = new bool*[N];
 			nodes = new int[N];
 			flags = new bool[N];
@@ -152,10 +154,12 @@ namespace AlgoLab5 {
 			for(int i = 0; i < N; i++){
 				flags[i] = false;
 				graph[i] = new int[N];
+				graphP[i] = new int[N];
 				edges[i] = new bool[N];
 				nodes[i] = std::numeric_limits<int>::max();
 				for(int j = 0; j < N; j++){
 					graph[i][j] = -1;
+					graphP[i][j] = -1;
 					edges[i][j] = false;
 				}
 			}
@@ -199,13 +203,9 @@ namespace AlgoLab5 {
 				if(minI!=10000){
 					for(int j = 0; j < count; j++){
 						if(!flags[j]){
-							if((graph[minI][j] != -1) && ((graph[minI][j] + nodes[minI]) < nodes[j])){
-								nodes[j] = graph[minI][j] + nodes[minI];
+							if((graph[minI][j] != -1) && ((graph[minI][j] + graphP[minI][j] + nodes[minI]) < nodes[j])){
+								nodes[j] = graph[minI][j] + graphP[minI][j] + nodes[minI];
 								label2->Text += "В массив кратчайших путей к "+j+" записан "+nodes[j]+" из вершины "+minI+"\n";
-								/*edges[minI][j] = true;
-								edges[j][minI] = true;
-								this->Invalidate();
-								_sleep(1000);*/
 							}
 						}
 					}
@@ -225,7 +225,7 @@ namespace AlgoLab5 {
 			while(end != start){
 				for(int i = 0; i < count; i++){
 					if(graph[i][end] != -1){
-						int temp = weight - graph[i][end];
+						int temp = weight - graph[i][end] - graphP[i][end];
 						if(temp == nodes[i]){
 							weight = temp;
 							end = i;
@@ -241,10 +241,6 @@ namespace AlgoLab5 {
 				if(i>0) this->label2->Text += "->";
 			}
 			this->Invalidate();
-			/*if(!edges[i][j])
-				e->Graphics->DrawLine(pb, Point(graphBtn[i]->Location.X+10, graphBtn[i]->Location.Y+10), Point(graphBtn[j]->Location.X+10, graphBtn[j]->Location.Y+10));
-			else*/
-			//delete[](ver);
 		}
 		Button^ tmpNode = nullptr;
 		public: System::Void CreateEdge(System::Object^ sender, System::EventArgs^ e){
@@ -255,6 +251,8 @@ namespace AlgoLab5 {
 				if(dialogForm->ShowDialog(this) == ::DialogResult::OK){
 					graph[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
 					graph[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
+					graphP[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);
+					graphP[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);
 					int x1, x2, y1, y2;
 					x1 = graphBtn[tmpNode->TabIndex]->Location.X + 10;
 					x2 = graphBtn[((Button^)sender)->TabIndex]->Location.X + 10;
@@ -262,10 +260,10 @@ namespace AlgoLab5 {
 					y2 = graphBtn[((Button^)sender)->TabIndex]->Location.Y + 10;
 
 					if(labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] != nullptr){
-						labels[((Button^)sender)->TabIndex, tmpNode->TabIndex]->Text = dialogForm->textBoxD->Text;
+						labels[((Button^)sender)->TabIndex, tmpNode->TabIndex]->Text = dialogForm->textBoxD->Text +", "+ dialogForm->textBoxP->Text;
 					}else{
 						Label^ label = gcnew Label();
-						label->Text = graph[tmpNode->TabIndex][((Button^)sender)->TabIndex].ToString();
+						label->Text = dialogForm->textBoxD->Text + ", " + dialogForm->textBoxP->Text;
 
 						label->AutoSize = true;
 						label->Location = System::Drawing::Point((x1 + x2) / 2, (y1 + y2) / 2);
