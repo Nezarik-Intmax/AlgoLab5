@@ -366,33 +366,37 @@ namespace AlgoLab5{
 			Form2^ dialogForm = gcnew Form2;
 			if(dialogForm->ShowDialog(this) == ::DialogResult::OK){
 				try{
-					graph[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
-					graph[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
-					/*graphP[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);
-					graphP[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);*/
-					int x1, x2, y1, y2;
-					x1 = graphBtn[tmpNode->TabIndex]->Location.X + 10;
-					x2 = graphBtn[((Button^)sender)->TabIndex]->Location.X + 10;
-					y1 = graphBtn[tmpNode->TabIndex]->Location.Y + 10;
-					y2 = graphBtn[((Button^)sender)->TabIndex]->Location.Y + 10;
+					if(Convert::ToInt32(dialogForm->textBoxD->Text)>=0){
+						graph[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
+						graph[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
+						/*graphP[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);
+						graphP[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);*/
+						int x1, x2, y1, y2;
+						x1 = graphBtn[tmpNode->TabIndex]->Location.X + 10;
+						x2 = graphBtn[((Button^)sender)->TabIndex]->Location.X + 10;
+						y1 = graphBtn[tmpNode->TabIndex]->Location.Y + 10;
+						y2 = graphBtn[((Button^)sender)->TabIndex]->Location.Y + 10;
 
-					if(labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] != nullptr){
-						labels[((Button^)sender)->TabIndex, tmpNode->TabIndex]->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
-					} else{
-						Label^ label = gcnew Label();
-						label->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
+						if(labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] != nullptr){
+							labels[((Button^)sender)->TabIndex, tmpNode->TabIndex]->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
+						} else{
+							Label^ label = gcnew Label();
+							label->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
 
-						label->AutoSize = true;
-						label->Location = System::Drawing::Point((x1 + x2) / 2, (y1 + y2) / 2);
-						label->Name = L"label" + tmpNode->TabIndex.ToString() + ((Button^)sender)->TabIndex.ToString();
-						label->Size = System::Drawing::Size(35, 13);
-						label->TabIndex = 1;
-						label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-							static_cast<System::Byte>(204)));
-						this->Controls->Add(label);
-						labels[tmpNode->TabIndex, ((Button^)sender)->TabIndex] = label;
-						labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] = label;
-						label2->Text = "";
+							label->AutoSize = true;
+							label->Location = System::Drawing::Point((x1 + x2) / 2, (y1 + y2) / 2);
+							label->Name = L"label" + tmpNode->TabIndex.ToString() + ((Button^)sender)->TabIndex.ToString();
+							label->Size = System::Drawing::Size(35, 13);
+							label->TabIndex = 1;
+							label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+								static_cast<System::Byte>(204)));
+							this->Controls->Add(label);
+							labels[tmpNode->TabIndex, ((Button^)sender)->TabIndex] = label;
+							labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] = label;
+							label2->Text = "";
+						}
+					}else{
+						label2->Text = "Ошибка, длина дороги не должна быть отрицательна";
 					}
 				} catch(const System::FormatException^){
 					label2->Text = "Ошибка, длина дороги должна быть целым числом";
