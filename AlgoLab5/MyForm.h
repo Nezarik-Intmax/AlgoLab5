@@ -138,7 +138,7 @@ namespace AlgoLab5{
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(971, 21);
+			this->label2->Location = System::Drawing::Point(971 - 200, 21);
 			this->label2->Name = L"label2";
 			this->label2->Size = System::Drawing::Size(35, 13);
 			this->label2->TabIndex = 1;
@@ -154,7 +154,7 @@ namespace AlgoLab5{
 			this->ClientSize = System::Drawing::Size(738, 452);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->label2);
-			this->Controls->Add(this->label3);
+			//this->Controls->Add(this->label3);
 			this->Controls->Add(this->label4);
 			this->Controls->Add(this->label5);
 			this->Controls->Add(this->textBox1);
@@ -189,8 +189,17 @@ namespace AlgoLab5{
 		Node->Size = System::Drawing::Size(314, 30);
 		Node->TabIndex = count;
 		Node->Tag = count;
-		Node->Text = "Найти";
+		Node->Text = "Найти кратчайший путь";
 		Node->Click += gcnew System::EventHandler(this, &MyForm::textBox1_KeyUp2);
+		this->Controls->Add(Node);
+		Node = (gcnew System::Windows::Forms::Button());
+		Node->Location = System::Drawing::Point(13, 45 + 85);
+		Node->Name = L"shortest_cycle_btn";
+		Node->Size = System::Drawing::Size(314, 30);
+		Node->TabIndex = count;
+		Node->Tag = count;
+		Node->Text = "Задача коммивояжёра";
+		Node->Click += gcnew System::EventHandler(this, &MyForm::shortest_cycle_start);
 		this->Controls->Add(Node);
 
 
@@ -229,14 +238,39 @@ namespace AlgoLab5{
 		count++;
 	}
 	private: System::Void textBox1_KeyUp(System::Object^ sender, System::Windows::Forms::KeyEventArgs^ e){
-		if(e->KeyCode == Keys::Enter){
-			Algorithm(Convert::ToInt32(textBox1->Text) - 1);
-			ShowPath(Convert::ToInt32(textBox1->Text) - 1, Convert::ToInt32(textBox2->Text) - 1);
+		try{
+			if(e->KeyCode == Keys::Enter){
+				int ind = Convert::ToInt32(textBox1->Text) - 1;
+				int ind2 = Convert::ToInt32(textBox2->Text) - 1;
+				if(count==0 || ind < 0 || ind >=count || ind2 < 0 || ind2 >= count){
+					label2->Text = "Ошибка, индекс дороги несуществует";
+				}else{
+					Algorithm(ind);
+					ShowPath(ind, ind2);
+				}
+			}
+		} catch(const System::FormatException^){
+			label2->Text = "Ошибка, индекс дороги должен быть целым числом";
 		}
 	}
 	private: System::Void textBox1_KeyUp2(System::Object^ sender, System::EventArgs^ e){
-		Algorithm(Convert::ToInt32(textBox1->Text) - 1);
-		ShowPath(Convert::ToInt32(textBox1->Text) - 1, Convert::ToInt32(textBox2->Text) - 1);
+		try{
+			int ind = Convert::ToInt32(textBox1->Text) - 1;
+			int ind2 = Convert::ToInt32(textBox2->Text) - 1;
+			if(count == 0 || ind < 0 || ind >= count || ind2 < 0 || ind2 >= count){
+				label2->Text = "Ошибка, индекс дороги несуществует";
+			} else{
+				Algorithm(ind);
+				ShowPath(ind, ind2);
+			}
+
+		} catch(const System::FormatException^){
+			label2->Text = "Ошибка, индекс дороги должен быть целым числом";
+		}
+	}
+	private: System::Void shortest_cycle_start(System::Object^ sender, System::EventArgs^ e){
+		shortest_cycle(0);
+		//ShowPath(Convert::ToInt32(textBox1->Text) - 1, Convert::ToInt32(textBox2->Text) - 1);
 	}
 	private: System::Void Algorithm(int start){
 		for(int i = 0; i < count; i++){
@@ -271,32 +305,29 @@ namespace AlgoLab5{
 	private: System::Void shortest_cycle(int start){
 		for(int i = 0; i < count; i++){
 			flags[i] = false;
-			nodes[i] = std::numeric_limits<int>::max();
-			pathS[i] = "";
 		}
-		nodes[start] = 0;
+		int ind = start;
+		flags[ind]=true;
 		int min, minI;
 		label2->Text = "";
+		int path=0;
 		do{
 			min = std::numeric_limits<int>::max(), minI = 10000;
 			for(int j = 0; j < count; j++){
-				if((!flags[j]) && (nodes[j] < min)){
-					min = nodes[j];
+				if((!flags[j]) && (graph[ind][j]!=-1) && (graph[ind][j] < min)){
+					min = graph[ind][j];
 					minI = j;
 				}
 			}
 			if(minI != 10000){
-				for(int j = 0; j < count; j++){
-					if(!flags[j]){
-						if((graph[minI][j] != -1) && ((graph[minI][j] /*+ graphP[minI][j]*/ + nodes[minI]) < nodes[j])){
-							nodes[j] = graph[minI][j] + /*graphP[minI][j] +*/ nodes[minI];
-							//label2->Text += "В массив кратчайших путей к "+j+" записан "+nodes[j]+" из вершины "+minI+"\n";
-						}
-					}
-				}
+				path+=min;
+				ind = minI;
+				flags[minI] = true;
 			}
-			flags[minI] = true;
 		} while(minI != 10000);
+		Algorithm(ind);
+		path += nodes[start];
+		label2->Text = "Длина цикла: "+path;
 	}
 	int k = 1;
 	int* ver = new int[N];
@@ -334,32 +365,37 @@ namespace AlgoLab5{
 		} else{
 			Form2^ dialogForm = gcnew Form2;
 			if(dialogForm->ShowDialog(this) == ::DialogResult::OK){
-				graph[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
-				graph[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
-				/*graphP[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);
-				graphP[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);*/
-				int x1, x2, y1, y2;
-				x1 = graphBtn[tmpNode->TabIndex]->Location.X + 10;
-				x2 = graphBtn[((Button^)sender)->TabIndex]->Location.X + 10;
-				y1 = graphBtn[tmpNode->TabIndex]->Location.Y + 10;
-				y2 = graphBtn[((Button^)sender)->TabIndex]->Location.Y + 10;
+				try{
+					graph[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
+					graph[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxD->Text);
+					/*graphP[tmpNode->TabIndex][((Button^)sender)->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);
+					graphP[((Button^)sender)->TabIndex][tmpNode->TabIndex] = Convert::ToInt32(dialogForm->textBoxP->Text);*/
+					int x1, x2, y1, y2;
+					x1 = graphBtn[tmpNode->TabIndex]->Location.X + 10;
+					x2 = graphBtn[((Button^)sender)->TabIndex]->Location.X + 10;
+					y1 = graphBtn[tmpNode->TabIndex]->Location.Y + 10;
+					y2 = graphBtn[((Button^)sender)->TabIndex]->Location.Y + 10;
 
-				if(labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] != nullptr){
-					labels[((Button^)sender)->TabIndex, tmpNode->TabIndex]->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
-				} else{
-					Label^ label = gcnew Label();
-					label->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
+					if(labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] != nullptr){
+						labels[((Button^)sender)->TabIndex, tmpNode->TabIndex]->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
+					} else{
+						Label^ label = gcnew Label();
+						label->Text = dialogForm->textBoxD->Text/* + ", " + dialogForm->textBoxP->Text*/;
 
-					label->AutoSize = true;
-					label->Location = System::Drawing::Point((x1 + x2) / 2, (y1 + y2) / 2);
-					label->Name = L"label" + tmpNode->TabIndex.ToString() + ((Button^)sender)->TabIndex.ToString();
-					label->Size = System::Drawing::Size(35, 13);
-					label->TabIndex = 1;
-					label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
-						static_cast<System::Byte>(204)));
-					this->Controls->Add(label);
-					labels[tmpNode->TabIndex, ((Button^)sender)->TabIndex] = label;
-					labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] = label;
+						label->AutoSize = true;
+						label->Location = System::Drawing::Point((x1 + x2) / 2, (y1 + y2) / 2);
+						label->Name = L"label" + tmpNode->TabIndex.ToString() + ((Button^)sender)->TabIndex.ToString();
+						label->Size = System::Drawing::Size(35, 13);
+						label->TabIndex = 1;
+						label->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+							static_cast<System::Byte>(204)));
+						this->Controls->Add(label);
+						labels[tmpNode->TabIndex, ((Button^)sender)->TabIndex] = label;
+						labels[((Button^)sender)->TabIndex, tmpNode->TabIndex] = label;
+						label2->Text = "";
+					}
+				} catch(const System::FormatException^){
+					label2->Text = "Ошибка, длина дороги должна быть целым числом";
 				}
 			}
 
